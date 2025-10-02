@@ -1,0 +1,5 @@
+title: "BuilderIconBrowser"
+description: "Automatically generated list of Roblox builder icons"
+url: https://82O7.github.io/BuilderIconBrowser
+
+exclude: [".gitignore", "README.md"]
