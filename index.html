@@ -12,25 +12,73 @@
 				color: white;
 			}
 
-			.loading-screen {
-
+			#loading-screen {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+				flex-direction: column;
 			}
+			
+			#loading-spinner {
+				border: 20px solid #f3f3f3;
+				border-top: 20px solid #3498db;
+				border-radius: 50%;
+				width: 30%;
+				aspect-ratio: 1/1;
+				animation: loading-spin 1s linear infinite;
+			}
+			
+			@keyframes loading-spin {
+				0% {
+					transform: rotate(0deg);
+				}
+				100% {
+					transform: rotate(360deg);
+				}
+			}
+			
+			#main-content {}
 		</style>
 	</head>
 	<body>
-		<div class="loading-screen">
-
+		<div id="loading-screen">
+			<div id="loading-spinner"></div>
+			<p id="loading-text"></p>
+		</div>
+		
+		<div id="main-content">
 		</div>
 		
 		<script type="text/javascript">
 			const loadingScreenElement = document.getElementById("loading-screen");
-
+			const loadingTextElement = document.getElementById("loading-text");
+			const mainContentElement = document.getElementById("main-content");
+			
+			let loadingText = "";
+			let loadingTextDotCount = 0;
+			
+			function updateLoadingText() {
+				loadingTextElement.innerHTML = loadingText + ".".repeat(loadingTextDotCount);
+			}
+			
+			setInterval(function() {
+				if (++loadingTextDotCount > 3) {
+					loadingTextDotCount = 0;
+				}
+				
+				updateLoadingText();
+			}, 500);
+			
 			function setLoadingScreenText(text) {
 				if (text) {
-					// Set text
-					loadingScreenElement.style.display = "block";
+					loadingText = text;
+					updateLoadingText();
+					loadingScreenElement.style.display = "flex";
+					mainContentElement.style.display = "none";
 				} else {
 					loadingScreenElement.style.display = "none";
+					mainContentElement.style.display = "block";
 				}
 			}
 
@@ -40,11 +88,36 @@
 		<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
 
 		<script type="text/javascript">
-			setLoadingScreenText("Fetching font files");
+			function sleepAsync(time) {
+				return new Promise(function(resolve, reject) {
+					setTimeout(resolve, time);
+				});
+			}
+			
+			async function fetchFontBuffer(url) {
+				while (true) {
+					try {
+						return await (await fetch(url)).arrayBuffer();
+					} finally {
+						await sleepAsync(1000);
+					}
+				}
+			}
+			
+			
+			(async function() {
+				setLoadingScreenText("Fetching font files");
+				
+				const baseURL = "https://github.com/MaximumADHD/Roblox-Client-Tracker/raw/refs/heads/roblox/LuaPackages/Packages/_Index/BuilderIcons/BuilderIcons/Font/";
+				const regularFontBuffer = await fetchFontBuffer(baseURL + "BuilderIcons-Regular.ttf");
+				const filledFontBuffer = await fetchFontBuffer(baseURL + "BuilderIcons-Filled.ttf");
+				
+				setLoadingScreenText("Parsing font files");
+				
+				
+			})();
 
-			setLoadingScreenText("Parsing font files");
-
-			setLoadingScreenText(null);
+			//setLoadingScreenText(null);
 		</script>
 	</body>
 </html>
