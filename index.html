@@ -82,6 +82,7 @@
 					<th rowspan="2" id="index-header-row">Index</th>
 					<th colspan="2">Icon</th>
 					<th rowspan="2" style="width: 100%;">Name / Components</th>
+					<th rowspan="2">Glyph codepoint</th>
 				</tr>
 				<tr>
 					<th>Normal</th>
@@ -97,6 +98,7 @@
 				<td></td>
 				<td style="font-family: BuilderIcons;"></td>
 				<td style="font-family: BuilderIcons; font-weight: bold;"></td>
+				<td></td>
 				<td></td>
 			</tr>
 		</template>
@@ -171,37 +173,17 @@
 				const filledFontData = opentype.parse(filledFontBuffer);
 				
 				const entries = [];
-				
-				/*function scanLigatures(font) {
+
+				function scanFont(font) {
 					const glyphsData = font.glyphs;
-					const glyphSet = glyphsData.glyphs;
-					
-					for (let index = 0; index < glyphsData.length; index++) {
-						const glyphData = glyphSet[index];
-						const glyphName = glyphData?.name
-						const glyphUnicode = glyphData?.unicode;
-						
-						if (!entries.find(function(entryData) {
-							return entryData.components == glyphName;
-						}) && glyphUnicode != null) {
-							entries.push({
-								components: glyphName,
-								unicode: glyphUnicode
-							});
-						}
-					}
-				}*/
 
-				function scanLigatures(font) {
-					const glyphsData = font?.glyphs;
-
-					font?.tables?.gsub?.lookups?.forEach(function(lookup) {
+					font.tables?.gsub?.lookups?.forEach(function(lookup) {
 						lookup.subtables?.forEach(function(subtable) {
 							const coverageGlyphs = subtable.coverage?.glyphs;
 							subtable.ligatureSets?.forEach(function(ligatureSet, ligatureSetIndex) {
 								ligatureSet.forEach(function(ligatureData) {
 									const componentsString = [coverageGlyphs?.[ligatureSetIndex], ...ligatureData.components].map(function(value) {
-										return String.fromCodePoint(glyphsData?.get(value)?.unicode ?? 0);
+										return String.fromCodePoint(glyphsData.get(value)?.unicode ?? 0);
 									}).join("");
 									
 									if (!entries.find(function(entryData) {
@@ -209,17 +191,35 @@
 									})) {
 										entries.push({
 											components: componentsString,
-											unicode: glyphsData?.get(ligatureData.ligGlyph ?? 0)?.unicode ?? 0
+											unicode: glyphsData.get(ligatureData.ligGlyph ?? 0)?.unicode ?? 0
 										});
 									}
 								});
 							});
 						});
 					});
+
+					for (let index = 0; index < glyphsData.length; index++) {
+						const glyphData = glyphsData.get(index);
+						const glyphName = glyphData?.name;
+						const glyphUnicode = glyphData?.unicode;
+						const glyphCodepoint = glyphData?.unicodes.find(function(value) {
+							return value !== glyphUnicode;
+						});
+						
+						if (!entries.find(function(entryData) {
+							return entryData.components == glyphName;
+						}) && glyphCodepoint != null) {
+							entries.push({
+								components: glyphName,
+								unicode: glyphCodepoint
+							});
+						}
+					}
 				}
-				
-				scanLigatures(regularFontData);
-				scanLigatures(filledFontData);
+
+				scanFont(regularFontData);
+				scanFont(filledFontData);
 
 				const entryTemplateElement = document.getElementById("entry-template");
 				const listBodyElement = document.getElementById("list-body");
@@ -231,12 +231,14 @@
 				entries.forEach(function(entryData, index) {
 					const entryElement = entryTemplateElement.content.cloneNode(true);
 					const tdElements = entryElement.querySelectorAll("td");
-					const unicodeCharacter = String.fromCodePoint(entryData.unicode);
+					const unicodeCodepoint = entryData.unicode;
+					const unicodeCharacter = String.fromCodePoint(unicodeCodepoint);
 				
 					tdElements[0].textContent = String(index + 1);
 					tdElements[1].textContent = unicodeCharacter;
 					tdElements[2].textContent = unicodeCharacter;
 					tdElements[3].textContent = entryData.components;
+					tdElements[4].textContent = "U+" + unicodeCodepoint.toString(16).toUpperCase();
 					
 					listBodyElement.appendChild(entryElement);
 				});
