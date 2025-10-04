@@ -2,4 +2,4 @@ title: "BuilderIconList"
 description: "Automatically generated list of Roblox builder icons"
 url: https://82O7.github.io/BuilderIconList
 
-exclude: [".gitignore", "README.md"]
+exclude: ["README.md"]
