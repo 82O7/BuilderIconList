@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Roblox: Builder Icon List</title>
+		<title>Roblox: Builder Icon Browser</title>
 		<link rel="icon" type="image/x-icon" href="/favicon.ico">
 		<style>
 			* {
@@ -16,11 +16,17 @@
 				font-family: monospace;
 				color: white;
 			}
-			
-			#loading-screen {
+
+			.main-content {
 				position: fixed;
 				width: 100%;
 				height: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			
+			#loading-screen {
 				display: flex;
 				justify-content: center;
 				align-items: center;
@@ -47,60 +53,35 @@
 				100% { transform: rotate(360deg); }
 			}
 			
-			#list-table {
-				width: 100%;
-				z-index: 1;
-				table-layout: fixed;
-			}
-			
-			#list-table th, #list-table td {
-				background-color: rgb(60, 60, 60);
-				text-align: center;
-				padding: 5px 10px;
+			#list-holder {
+				width: calc(100% - 20px);
+				height: calc(100% - 20px);
+				background-color: rgb(100,100,100);
 			}
 		</style>
 	</head>
 	<body>
-		<div id="loading-screen">
-			<div id="loading-spinner"></div>
-			<p id="loading-text"></p>
+		<div class="main-content">
+			<div id="loading-screen">
+				<div id="loading-spinner"></div>
+				<p id="loading-text"></p>
+			</div>
+			
+			<div id="list-holder">
+				
+			</div>
 		</div>
-		
-		<table id="list-table" cellspacing="3px">
-			<thead>
-				<tr>
-					<th rowspan="2" id="index-header-row">Index</th>
-					<th colspan="2">Icon</th>
-					<th rowspan="2" style="width: 100%;">Components</th>
-				</tr>
-				<tr>
-					<th>Normal</th>
-					<th>Filled</th>
-				</tr>
-			</thead>
-			<tbody id="list-body">
-			</tbody>
-		</table>
-		
-		<template id="entry-template">
-			<tr>
-				<td></td>
-				<td style="font-family: BuilderIcons;"></td>
-				<td style="font-family: BuilderIcons; font-weight: bold;"></td>
-				<td></td>
-			</tr>
-		</template>
 		
 		<script type="text/javascript">
 			const loadingScreenElement = document.getElementById("loading-screen");
 			const loadingTextElement = document.getElementById("loading-text");
-			const listTableElement = document.getElementById("list-table");
+			const listHolderElement = document.getElementById("list-holder");
 			
 			let loadingText = "";
 			let loadingTextDotCount = 0;
 			
 			function updateLoadingText() {
-				loadingTextElement.textContent = loadingText + ".".repeat(loadingTextDotCount);
+				loadingTextElement.innerHTML = loadingText + ".".repeat(loadingTextDotCount);
 			}
 			
 			setInterval(function() {
@@ -116,10 +97,10 @@
 					loadingText = text;
 					updateLoadingText();
 					loadingScreenElement.style.display = "flex";
-					listTableElement.style.display = "none";
+					listHolderElement.style.display = "none";
 				} else {
 					loadingScreenElement.style.display = "none";
-					listTableElement.style.display = "block";
+					listHolderElement.style.display = "flex";
 				}
 			}
 
@@ -159,49 +140,9 @@
 
 				const regularFontData = opentype.parse(regularFontBuffer);
 				const filledFontData = opentype.parse(filledFontBuffer);
-				
-				const entries = [];
-				
-				function scanLigatures(font) {
-					const glyphsData = font.glyphs;
-					const glyphSet = glyphsData.glyphs;
-					
-					for (let index = 0; index < glyphsData.length; index++) {
-						const glyphData = glyphSet[index];
-						const glyphName = glyphData?.name
-						const glyphUnicode = glyphData?.unicode;
-						
-						if (!entries.find(function(entryData) {
-							return entryData.components == glyphName;
-						}) && glyphUnicode != null) {
-							entries.push({
-								components: glyphName,
-								unicode: glyphUnicode
-							});
-						}
-					}
-				}
-				
-				scanLigatures(regularFontData);
-				scanLigatures(filledFontData);
-				
-				const entryTemplateElement = document.getElementById("entry-template");
-				const listBodyElement = document.getElementById("list-body");
-				
-				entries.forEach(function(entryData, index) {
-					const entryElement = entryTemplateElement.content.cloneNode(true);
-					const tdElements = entryElement.querySelectorAll("td");
-					const unicodeCharacter = String.fromCodePoint(entryData.unicode);
-				
-					tdElements[0].textContent = String(index + 1);
-					tdElements[1].textContent = unicodeCharacter;
-					tdElements[2].textContent = unicodeCharacter;
-					tdElements[3].textContent = entryData.components;
-					
-					listBodyElement.appendChild(entryElement);
-				});
-				
-				document.getElementById("index-header-row").textContent = `Index (${entries.length})`;
+
+				// do stuff
+
 				setLoadingScreenText(null);
 			})();
 		</script>
