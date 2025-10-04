@@ -12,7 +12,7 @@
 			}
 
 			body {
-				background-color: rgb(45, 45, 45);
+				background-color: rgb(25, 25, 25);
 				font-family: monospace;
 				color: white;
 			}
@@ -29,7 +29,7 @@
 			}
 			
 			#loading-spinner {
-				border: 20px solid rgb(75, 75, 75);
+				border: 20px solid rgb(45, 45, 45);
 				border-top: 20px solid #3498db;
 				border-radius: 50%;
 				width: 120px;
@@ -54,9 +54,20 @@
 			}
 			
 			#list-table th, #list-table td {
-				background-color: rgb(60, 60, 60);
 				text-align: center;
 				padding: 5px 10px;
+			}
+
+			#list-table thead {
+				background-color: rgb(60, 60, 60);
+			}
+
+			#list-table tbody {
+				background-color: rgb(50, 50, 50);
+			}
+
+			#list-table tbody tr:nth-child(even) {
+				background-color: rgb(40, 40, 40);
 			}
 
 			::selection {
@@ -81,12 +92,12 @@
 				<tr>
 					<th rowspan="2" id="index-header-row">Index</th>
 					<th colspan="2">Icon</th>
-					<th rowspan="2" style="width: 100%;">Name / Components</th>
+					<th rowspan="2" style="width: 100%;">Name / Ligature components</th>
 					<th rowspan="2">Glyph codepoint</th>
 				</tr>
 				<tr>
 					<th>Normal</th>
-					<th>Filled</th>
+					<th>Filled (Bold)</th>
 				</tr>
 			</thead>
 			<tbody id="list-body">
