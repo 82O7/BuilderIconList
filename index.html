@@ -71,7 +71,7 @@
 				<tr>
 					<th rowspan="2" id="index-header-row">Index</th>
 					<th colspan="2">Icon</th>
-					<th rowspan="2" style="width: 100%;">Components</th>
+					<th rowspan="2" style="width: 100%;">Name / Components</th>
 				</tr>
 				<tr>
 					<th>Normal</th>
@@ -162,7 +162,7 @@
 				
 				const entries = [];
 				
-				function scanLigatures(font) {
+				/*function scanLigatures(font) {
 					const glyphsData = font.glyphs;
 					const glyphSet = glyphsData.glyphs;
 					
@@ -180,14 +180,44 @@
 							});
 						}
 					}
+				}*/
+
+				function scanLigatures(font) {
+					const glyphsData = font?.glyphs;
+
+					font?.tables?.gsub?.lookups?.forEach(function(lookup) {
+						lookup.subtables?.forEach(function(subtable) {
+							const coverageGlyphs = subtable.coverage?.glyphs;
+							subtable.ligatureSets?.forEach(function(ligatureSet, ligatureSetIndex) {
+								ligatureSet.forEach(function(ligatureData) {
+									const componentsString = [coverageGlyphs?.[ligatureSetIndex], ...ligatureData.components].map(function(value) {
+										return String.fromCodePoint(glyphsData?.get(value)?.unicode ?? 0);
+									}).join("");
+									
+									if (!entries.find(function(entryData) {
+										return entryData.components == componentsString;
+									})) {
+										entries.push({
+											components: componentsString,
+											unicode: glyphsData?.get(ligatureData.ligGlyph ?? 0)?.unicode ?? 0
+										});
+									}
+								});
+							});
+						});
+					});
 				}
 				
 				scanLigatures(regularFontData);
 				scanLigatures(filledFontData);
-				
+
 				const entryTemplateElement = document.getElementById("entry-template");
 				const listBodyElement = document.getElementById("list-body");
 				
+				entries.sort(function(entryA, entryB) {
+					return entryA.components.localeCompare(entryB.components);
+				});
+
 				entries.forEach(function(entryData, index) {
 					const entryElement = entryTemplateElement.content.cloneNode(true);
 					const tdElements = entryElement.querySelectorAll("td");
