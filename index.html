@@ -162,7 +162,7 @@
 				while (true) {
 					try {
 						return await (await fetch(url)).arrayBuffer();
-					} finally {
+					} catch (err) {
 						await sleepAsync(1000);
 					}
 				}
@@ -261,3 +261,4 @@
 	</body>
 
 </html>
+
